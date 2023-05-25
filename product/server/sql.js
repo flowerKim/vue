@@ -43,7 +43,6 @@ module.exports = {
   productDelete: {
     query: `delete from t_product where id=?`,
   },
-
   categoryList: {
     query: `select * from t_category`,
   },
@@ -51,29 +50,41 @@ module.exports = {
     query: `select * from t_seller`,
   },
   signUp: {
-    // query: `insert into t_user set ? on duplicate key update ?`,
     query: `insert into b_user set ? on duplicate key update ?`,
   },
   myUnoInfo: {
     query: `select uno from b_user where uemail=?`,
   },
   boardList: {
-    query: `select t1.*,t2.uname, t2.uemail from   b_list t1
-            left join b_user t2 on t1.uno=t2.uno
-            where t1.bstatus=1;`,
+    // query: `select t1.*,t2.uname, t2.uemail from   b_list t1
+    //         left join b_user t2 on t1.uno=t2.uno
+    //         where t1.bstatus=1;`
+    query: `select t1.bno,
+            t1.btitle,
+            t1.bcontent,
+            DATE_FORMAT(t1.bcreate_date,'%Y-%m-%d %h:%m:%s') as bcreate_date,
+            DATE_FORMAT(t1.bupdate_date,'%Y-%m-%d %h:%m:%s') as bupdate_date,
+            t1.bhit,
+            t1.bstatus,
+            t1.uno,
+            t2.uname, 
+            t2.uemail
+      from  b_list t1
+      left join b_user t2 on t1.uno=t2.uno
+      where t1.bstatus=1;`,
   },
   boardDetail: {
     query: `select t1.*, t2.uname, t2.uemail,t2.uno 
-    from   b_list t1,b_user t2 where t1.uno=t2.uno and t1.bno=?;`,
+            from   b_list t1,b_user t2 where t1.uno=t2.uno and t1.bno=?;`,
   },
   boardDetailHit: {
     query: `update b_list
-    set    bhit = ?
-    where  bno = ?;`,
+            set    bhit = ?
+            where  bno = ?;`,
   },
   boardUpdate: {
-    query: `update b_list set 
-    btitle=?, bcontent=?, bupdate_date=current_timestamp() where bno=?;`,
+    query: `update b_list 
+            set    btitle=?, bcontent=?, bupdate_date=current_timestamp() where bno=?;`,
   },
   boardCreate: {
     query: `insert into b_list set ?, bcreate_date=current_timestamp()`,
@@ -90,16 +101,29 @@ module.exports = {
   },
 
   boardReplyList: {
-    query: `select t1.*,t2.uname from b_reply t1, b_user t2
-    where t1.uno=t2.uno and bno=?
-    order by sort;`,
+    // query: `select t1.*,t2.uname from b_reply t1, b_user t2
+    // where t1.uno=t2.uno and bno=?
+    // order by sort;`,
+    query: `select t1.rno
+                  ,t1.rcontent
+                  ,t1.rdepth
+                  ,t1.rpno
+                  ,DATE_FORMAT(t1.rcreate_date,'%Y-%m-%d %h:%m:%s') as rcreate_date
+                  ,t1.uno
+                  ,t1.bno
+                  ,t1.sort
+                  ,t1.sort2
+                  ,t2.uname 
+            from b_reply t1, b_user t2
+            where t1.uno=t2.uno and bno=?
+            order by t1.sort;`,
   },
   boardNewReply: {
-    query: `insert into b_reply set  
-    rcontent=?
-    ,rcreate_date=current_timestamp()
-    ,uno=?
-    ,bno=?`,
+    query: `insert into b_reply 
+     set         rcontent=?
+                ,rcreate_date=current_timestamp()
+                ,uno=?
+                ,bno=?`,
   },
   boardReplySortUpdate: {
     query: `with a as (
